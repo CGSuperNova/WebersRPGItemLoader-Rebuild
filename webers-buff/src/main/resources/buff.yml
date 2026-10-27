@@ -1,0 +1,14 @@
+test1:
+  name: "测试buff"
+  length: 10000
+  damage: 1
+  attackHeal: 0
+  crit: 1
+  critMul: 3
+  stealHealth: 0
+  appendDamage: 0
+  currentEntityHealthDamage: 0
+  maxEntityHealthDamage: 0
+  outputDamage: 0
+
+

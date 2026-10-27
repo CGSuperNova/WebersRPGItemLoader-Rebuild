@@ -1,0 +1,46 @@
+name: WebersBuff
+main: com.weberpyth.weberBuff.WeberBuff
+version: '1.8.0'
+api-version: '1.21'
+author: weber
+description: Weber's Buff - timed attribute buffs on top of the Weber RPG item system.
+depend: [WeberRpgitemLoader]
+softdepend: []
+commands:
+  wrbCheck:
+    description: weber's Buff test command
+    usage: /<command>
+    permission: WeberBuff.wrbCheck
+    permission-message: You don't have <permission>
+  wrbAdd:
+    description: weber's Buff add command
+    usage: /<command> [buffID]
+    permission: WeberBuff.admin
+    permission-message: You don't have <permission>
+  wrbSet:
+    description: weber's Buff set command
+    usage: /<command> [player] [buffID]
+    permission: WeberBuff.admin
+    permission-message: You don't have <permission>
+  wrbGive:
+    description: Give sender a weber's Buff Item
+    usage: /<command> [buffID] [itemID]
+    permission: WeberBuff.admin
+    permission-message: You don't have <permission>
+  wrbReload:
+    description: Reload weber's Buff plugin
+    usage: /<command>
+    permission: WeberBuff.admin
+    permission-message: You don't have <permission>
+  wrbFace:
+    description: show the entity on your face
+    usage: /<command>
+    permission: WeberBuff.admin
+    permission-message: You don't have <permission>
+permissions:
+  WeberBuff.admin:
+    description: Access to all WebersBuff commands
+    default: op
+  WeberBuff.wrbCheck:
+    description: Allows checking your active buffs
+    default: true

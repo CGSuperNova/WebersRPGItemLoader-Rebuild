@@ -1,0 +1,8 @@
+isDebug : false
+playerOnly: true
+battleEcho: false
+noOriginDamage: false
+lightBattleEcho: false
+noImmutableTick: false
+noNBTAPI: false
+loreCheck: false

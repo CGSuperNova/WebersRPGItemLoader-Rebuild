@@ -1,0 +1,34 @@
+name: WeberRpgitemLoader
+main: com.weberpyth.rpgitemloader.rpgitemloader
+version: 1.6.9 Beta
+commands:
+  WRL:
+    description: weber's rpgItemLoader test command
+    usage: /<command>
+    permission: WeberRpgitemLoader.admin
+    permission-message: You don't have <permission>
+  wrlLBI:
+    description: set item on main hand
+    usage: /<command> [wrpgitem]
+    permission: WeberRpgitemLoader.admin
+    permission-message: You don't have <permission>
+  wrlLII:
+    description: set info on main hand
+    usage: /<command> [wrpginfo]
+    permission: WeberRpgitemLoader.admin
+    permission-message: You don't have <permission>
+  wrlCheck:
+    description: check item on main hand
+    usage: /<command>
+    permission: WeberRpgitemLoader.admin
+    permission-message: You don't have <permission>
+  wrlReloadConf:
+    description: reload Weber's RPGItem Loader
+    usage: /<command>
+    permission: WeberRpgitemLoader.admin
+    permission-message: You don't have <permission>
+  wrlJump:
+    description: jump
+    usage: /<command> <height>
+    permission: WeberRpgitemLoader.admin
+    permission-message: You don't have <permission>

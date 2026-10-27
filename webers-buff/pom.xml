@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.weberpyth</groupId>
+        <artifactId>weber-rpgitem</artifactId>
+        <version>1.8.0</version>
+    </parent>
+
+    <artifactId>webers-buff</artifactId>
+    <name>WebersBuff</name>
+
+    <dependencies>
+        <dependency>
+            <groupId>io.papermc.paper</groupId>
+            <artifactId>paper-api</artifactId>
+        </dependency>
+        <!--
+            WebersBuff shares the item model and the combat pipeline with the loader plugin.
+            It is provided at runtime by the installed WeberRpgitemLoader.jar (declared as a
+            plugin dependency in plugin.yml); it must never be shaded into this jar.
+        -->
+        <dependency>
+            <groupId>com.weberpyth</groupId>
+            <artifactId>rpgitem-loader</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <finalName>WebersBuff-${project.version}</finalName>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>false</filtering>
+            </resource>
+        </resources>
+    </build>
+</project>

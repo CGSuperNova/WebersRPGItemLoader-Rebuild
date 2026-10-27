@@ -1,0 +1,73 @@
+test1:
+  damage: 15
+  attackHeal: 2
+  crit: 0.05
+  critMul: 1
+  stealHealth: 0
+  appendDamage: 0
+  currentEntityHealthDamage: 0
+  maxEntityHealthDamage: 0
+  outputDamage: 0
+  repel: 1
+
+W2T1:
+  damage: 15
+  attackHeal: 2
+  crit: 0.05
+  critMul: 1
+  stealHealth: 0
+  appendDamage: 0
+  currentEntityHealthDamage: 0
+  maxEntityHealthDamage: 0
+  outputDamage: 0
+W2T2:
+  damage: 28
+  attackHeal: 2
+  crit: 0.05
+  critMul: 1
+  stealHealth: 0
+  appendDamage: 0
+  currentEntityHealthDamage: 0
+  maxEntityHealthDamage: 0
+  outputDamage: 0
+W2T3:
+  damage: 48
+  attackHeal: 2
+  crit: 0.1
+  critMul: 1
+  stealHealth: 0
+  appendDamage: 0
+  currentEntityHealthDamage: 0
+  maxEntityHealthDamage: 0
+  outputDamage: 0
+W4T1:
+  damage: -3
+  attackHeal: 2
+  crit: 0.2
+  critMul: 1
+  stealHealth: 0.1
+  appendDamage: 0
+  currentEntityHealthDamage: 0
+  maxEntityHealthDamage: 0.07
+  outputDamage: 0
+W4T2:
+  damage: -2
+  attackHeal: 2
+  crit: 0.25
+  critMul: 1
+  stealHealth: 0.1
+  appendDamage: 0
+  currentEntityHealthDamage: 0
+  maxEntityHealthDamage: 0.1
+  outputDamage: 0
+W4T3:
+  damage: -1
+  attackHeal: 2
+  crit: 0.3
+  critMul: 1
+  stealHealth: 0.4
+  appendDamage: 0
+  currentEntityHealthDamage: 0
+  maxEntityHealthDamage: 0.14
+  outputDamage: 0
+

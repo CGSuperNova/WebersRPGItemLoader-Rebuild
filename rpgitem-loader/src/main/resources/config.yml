@@ -1,0 +1,15 @@
+isDebug : false
+playerOnly: true
+battleEcho: false
+noOriginDamage: false
+lightBattleEcho: false
+noImmutableTick: false
+noNBTAPI: false
+loreCheck: false
+
+# 旧版物品（1.21.11 适配前生成、属性保存在 custom_data.weber_id 的物品）检测
+legacyDetect: true
+# 同一玩家两次提示的最小间隔（秒）
+legacyDetectCooldown: 15
+# 提示文本，%id% 会替换为物品模板 ID
+legacyMessage: "&e检测到旧版 Weber 物品（&f%id%&e），请转换后再使用。"

@@ -1,0 +1,34 @@
+name: WebersBuff
+main: com.weberpyth.weberBuff.WeberBuff
+version: 1.0
+commands:
+  wrbCheck:
+    description: weber's Buff test command
+    usage: /<command>
+    permission: WeberBuff.wrbCheck
+    permission-message: You don't have <permission>
+  wrbAdd:
+    description: weber's Buff add command
+    usage: /<command> [buffID]
+    permission: WeberBuff.admin
+    permission-message: You don't have <permission>
+  wrbSet:
+    description: weber's Buff set command
+    usage: /<command> [player] [buffID]
+    permission: WeberBuff.admin
+    permission-message: You don't have <permission>
+  wrbGive:
+    description: Give sender a weber's Buff Item
+    usage: /<command> [buffID] [itemID]
+    permission: WeberBuff.admin
+    permission-message: You don't have <permission>
+  wrbReload:
+    description: Reload weber's Buff plugin
+    usage: /<command>
+    permission: WeberBuff.admin
+    permission-message: You don't have <permission>
+  wrbFace:
+    description: show the entity on your face
+    usage: /<command>
+    permission: WeberBuff.admin
+    permission-message: You don't have <permission>

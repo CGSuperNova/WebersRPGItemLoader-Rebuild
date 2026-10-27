@@ -1,0 +1,42 @@
+name: WeberRpgitemLoader
+main: com.weberpyth.rpgitemloader.rpgitemloader
+version: '1.8.0'
+api-version: '1.21'
+author: weber
+description: Weber's RPG item system - item templates and the combat pipeline.
+commands:
+  WRL:
+    description: Show the Weber RPG item command help
+    usage: /<command> [list|convert|reload|help]
+  wrlLBI:
+    description: set item on main hand
+    usage: /<command> [wrpgitem]
+    permission: WeberRpgitemLoader.admin
+    permission-message: You don't have <permission>
+  wrlLII:
+    description: set info on main hand
+    usage: /<command> [wrpginfo]
+    permission: WeberRpgitemLoader.admin
+    permission-message: You don't have <permission>
+  wrlCheck:
+    description: check item on main hand
+    usage: /<command>
+    permission: WeberRpgitemLoader.admin
+    permission-message: You don't have <permission>
+  wrlReloadConf:
+    description: reload Weber's RPGItem Loader
+    usage: /<command>
+    permission: WeberRpgitemLoader.admin
+    permission-message: You don't have <permission>
+  wrlJump:
+    description: jump
+    usage: /<command> <height>
+    permission: WeberRpgitemLoader.admin
+    permission-message: You don't have <permission>
+permissions:
+  WeberRpgitemLoader.admin:
+    description: Access to the item administration commands and /wrl list
+    default: op
+  WeberRpgitemLoader.convert:
+    description: Allows converting legacy Weber items with /wrl convert
+    default: true

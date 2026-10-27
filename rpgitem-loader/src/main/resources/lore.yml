@@ -1,0 +1,140 @@
+# Attribute lore shown on RPG items.
+#
+# Every line is rendered from a format string. Placeholders:
+#   %value%  the attribute value (already multiplied by 100 when percent: true)
+#   %key%    the raw attribute key
+#
+# Options per entry:
+#   format    the displayed text (& or § colour codes are both accepted)
+#   percent   true  -> raw value 0.05 is shown as 5
+#             false -> raw value 15 is shown as 15
+#   decimals  number of decimals; omit for automatic (integers stay integers, otherwise 2)
+#
+# `order` controls the display order; `entries` holds the format of each attribute.
+# Attributes that are zero are hidden unless `showZero: true`.
+separator: "&8&m--------------------"
+showZero: false
+
+order:
+  - damage
+  - meleePower
+  - rangedPower
+  - meleeDamage
+  - rangedDamage
+  - outputDamage
+  - appendDamage
+  - meleeAppendDamage
+  - rangedAppendDamage
+  - crit
+  - critMul
+  - currentEntityHealthDamage
+  - maxEntityHealthDamage
+  - executeDamage
+  - backstab
+  - angerDamage
+  - giantDamage
+  - annihilation
+  - playerKiller
+  - increasesDamageOnTheGround
+  - attackHeal
+  - stealHealth
+  - regurgitationCurrentHealthDamage
+  - repel
+  - blow
+  - armor
+  - armorIncrease
+  - armorDecrease
+  - armorSub
+  - block
+  - tenacity
+  - increaseDefenseOnTheGround
+  - injuryReduction
+
+entries:
+  damage:
+    format: "&c伤害 &f+%value%"
+  meleePower:
+    format: "&c近战强度 &f+%value%"
+  rangedPower:
+    format: "&c远程强度 &f+%value%"
+  meleeDamage:
+    percent: true
+    format: "&c近战伤害 &f+%value%%"
+  rangedDamage:
+    percent: true
+    format: "&c远程伤害 &f+%value%%"
+  outputDamage:
+    percent: true
+    format: "&c输出增伤 &f+%value%%"
+  appendDamage:
+    format: "&c附伤 &f+%value%"
+  meleeAppendDamage:
+    format: "&c近战附伤 &f+%value%"
+  rangedAppendDamage:
+    format: "&c远程附伤 &f+%value%"
+  crit:
+    percent: true
+    format: "&6暴击率 &f+%value%%"
+  critMul:
+    percent: true
+    format: "&6暴击伤害 &f+%value%%"
+  currentEntityHealthDamage:
+    percent: true
+    format: "&d目标当前生命 &f+%value%%"
+  maxEntityHealthDamage:
+    percent: true
+    format: "&d目标最大生命 &f+%value%%"
+  executeDamage:
+    percent: true
+    format: "&4斩杀伤害 &f+%value%%"
+  backstab:
+    percent: true
+    format: "&e背刺伤害 &f+%value%%"
+  angerDamage:
+    percent: true
+    format: "&5狂怒伤害 &f+%value%%"
+  giantDamage:
+    percent: true
+    format: "&c巨人之力 &f+%value%%"
+  annihilation:
+    percent: true
+    format: "&4处决阈值 &f+%value%%"
+  playerKiller:
+    percent: true
+    format: "&c对玩家伤害 &f+%value%%"
+  increasesDamageOnTheGround:
+    percent: true
+    format: "&a地面攻击 &f+%value%%"
+  attackHeal:
+    format: "&a攻击回复 &f+%value%"
+  stealHealth:
+    percent: true
+    format: "&4生命偷取 &f+%value%%"
+  regurgitationCurrentHealthDamage:
+    percent: true
+    format: "&4生命反噬 &f+%value%%"
+  repel:
+    format: "&b击退 &f+%value%"
+  blow:
+    format: "&b击飞 &f+%value%"
+  armor:
+    format: "&7护甲 &f+%value%"
+  armorIncrease:
+    percent: true
+    format: "&7护甲提升 &f+%value%%"
+  armorDecrease:
+    percent: true
+    format: "&7护甲穿透 &f+%value%%"
+  armorSub:
+    format: "&7固定穿透 &f+%value%"
+  block:
+    format: "&9格挡 &f+%value%"
+  tenacity:
+    percent: true
+    format: "&2坚忍减伤 &f+%value%%"
+  increaseDefenseOnTheGround:
+    percent: true
+    format: "&2地面防御 &f+%value%%"
+  injuryReduction:
+    percent: true
+    format: "&2减伤 &f+%value%%"
