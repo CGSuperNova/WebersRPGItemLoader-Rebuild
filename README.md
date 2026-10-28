@@ -1,5 +1,20 @@
 # Weber's RPG Item System
 
+# 前言
+
+本项目为基于WebersRPGItemLoader和WebersBuff两个我的世界服务器插件的二次开发版本，不属于原创插件，请注意甄别。
+
+我主要是将本插件向高版本进行了兼容并修复了一些零碎的问题，同时添加了一些比较方便的功能（如list子命令）。插件所提供的核心功能和作用基本不变。
+
+原作者：[隔壁富贵我表哥](https://space.bilibili.com/27238021)
+
+原插件wiki页面: [[MC插件][娱乐|RPG|免费] Webers RPGItem Loader 系列教程 (一)](https://www.bilibili.com/opus/907416402296569858)
+
+> 作者没有对原插件进行开源，本重制版是直接对插件本体进行反编译的
+
+> 注意，项目根目录下的rpgItemLoader1.6.9Beta.jar与webersBuff.jar是原版的插件（即没有重置的）。重制版放置于dist目录下
+
+# 插件详情
 两个协同工作的 Paper 插件，为服务器提供一套 RPG 武器/护甲属性系统：
 
 | 插件 | 作用 | 主类 |
@@ -7,15 +22,13 @@
 | **WeberRpgitemLoader** | 物品模板、战斗结算管线、属性事件、属性 Lore、旧版物品转换 | `com.weberpyth.rpgitemloader.rpgitemloader` |
 | **WebersBuff** | 限时属性 Buff、Buff 道具 | `com.weberpyth.weberBuff.WeberBuff` |
 
-> 本仓库中的源码最初由 1.12.2 的 jar 反编译得到，现已完成反编译缺陷修复、Paper 1.21.11 适配，并在此基础上扩展了 Tab 补全、物品列表、自动 Lore 与旧版物品转换。
-
 ---
 
 ## 1. 运行环境
 
 - **服务端**：Paper 1.21.11（API `1.21.11-R0.1-SNAPSHOT`）
 - **Java**：21+
-- **依赖**：不再需要 NBT-API 等任何前置插件；`WebersBuff` 需要 `WeberRpgitemLoader` 同时安装（已在 plugin.yml 中声明 `depend`）。
+- **依赖**：`WebersBuff` 需要 `WeberRpgitemLoader` 同时安装
 
 ## 2. 构建
 
