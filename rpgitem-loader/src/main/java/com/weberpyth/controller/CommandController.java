@@ -1,5 +1,6 @@
 package com.weberpyth.controller;
 
+import com.weberpyth.config.WeberItemConfig;
 import com.weberpyth.config.WeberLoreConfig;
 import com.weberpyth.config.weberConfig;
 import com.weberpyth.item.WeberRPGItem;
@@ -20,8 +21,6 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.TreeSet;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.event.ClickEvent;
-import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -134,6 +133,14 @@ public class CommandController {
         switch (sub) {
             case "list":
                 return list();
+            case "info":
+                return info();
+            case "create":
+                return create();
+            case "delete":
+                return delete();
+            case "edit":
+                return edit();
             case "convert":
                 return convert();
             case "reload":
@@ -151,7 +158,12 @@ public class CommandController {
 
     private void sendHelp() {
         this.sender.sendMessage("§6§lWeber's RPGItem Loader §7v" + this.plugin.getPluginMeta().getVersion());
-        this.sender.sendMessage("§e/wrl list §8[物品ID] §7- 查看已配置的物品");
+        this.sender.sendMessage("§e/wrl list §7- 列出全部物品模板名称");
+        this.sender.sendMessage("§e/wrl info <物品ID> §7- 查看模板的详细属性");
+        this.sender.sendMessage("§e/wrl create <物品ID> §7- 新建空模板");
+        this.sender.sendMessage("§e/wrl delete <物品ID> §7- 删除模板");
+        this.sender.sendMessage("§e/wrl edit <物品ID> addAttribute <属性> <数值> §7- 设置属性");
+        this.sender.sendMessage("§e/wrl edit <物品ID> removeAttribute <属性> §7- 移除属性");
         this.sender.sendMessage("§e/wrl convert §8[all] §7- 把旧版物品转换为新版");
         this.sender.sendMessage("§e/wrl reload §7- 重载全部配置");
         this.sender.sendMessage("§e/wrlLBI <物品ID> §7- 给手持物品打上战斗属性");
@@ -177,37 +189,27 @@ public class CommandController {
             this.sender.sendMessage("§e当前没有配置任何物品模板 (items.yml)");
             return true;
         }
-        if (hasArg(1)) {
-            return listDetail(arg(1));
-        }
-        this.sender.sendMessage("§6§m--------§r §6Weber 物品列表 §7(" + this.items.size() + ") §6§m--------");
+        this.sender.sendMessage("§6§m--------§r §6Weber 物品模板 §7(" + this.items.size() + ") §6§m--------");
         for (String id : new TreeSet<>(this.items.keySet())) {
-            WeberRPGItem item = this.items.get(id);
-            String name = displayNameOf(id, item);
-            Component line = Component.text("- ", NamedTextColor.DARK_GRAY)
-                    .append(Component.text(id, NamedTextColor.YELLOW))
-                    .append(name.isEmpty() ? Component.empty() : Component.text(" " + name, NamedTextColor.WHITE))
-                    .append(Component.text("  [查看]", NamedTextColor.AQUA)
-                            .clickEvent(ClickEvent.runCommand("/wrl list " + id))
-                            .hoverEvent(HoverEvent.showText(Component.text("查看 " + id + " 的详细属性"))));
-            this.sender.sendMessage(line);
+            this.sender.sendMessage("§e- §f" + id);
         }
-        this.sender.sendMessage(Component.text("点击物品或使用 /wrl list <物品ID> 查看详细信息", NamedTextColor.GRAY));
+        this.sender.sendMessage("§7使用 /wrl info <物品ID> 查看详细信息");
         return true;
     }
 
-    private String displayNameOf(String id, WeberRPGItem item) {
-        WeberRPGItemInfo info = this.itemInfo == null ? null : this.itemInfo.get(id);
-        if (info != null && info.name != null && !info.name.isEmpty()) {
-            return info.name;
+    private boolean info() {
+        if (!this.sender.hasPermission(ADMIN_PERMISSION)) {
+            this.sender.sendMessage("§c你没有权限查看物品信息");
+            return true;
         }
-        if (item != null && item.innerName != null && !item.innerName.isEmpty()) {
-            return "§7(" + item.innerName + "§7)";
+        if (!hasArg(1)) {
+            this.sender.sendMessage("§c用法: /wrl info <物品ID>");
+            return true;
         }
-        return "";
+        return infoDetail(arg(1));
     }
 
-    private boolean listDetail(String id) {
+    private boolean infoDetail(String id) {
         WeberRPGItem item = this.items.get(id);
         if (item == null) {
             this.sender.sendMessage("§c没有此物品模板: §f" + id);
@@ -260,6 +262,118 @@ public class CommandController {
         }
         keys.addAll(item.attributes.keySet());
         return new ArrayList<>(keys);
+    }
+
+    // ------------------------------------------------------------------ template editing
+
+    private static final java.util.regex.Pattern TEMPLATE_ID = java.util.regex.Pattern.compile("[A-Za-z0-9_-]{1,32}");
+
+    private boolean create() {
+        if (!this.sender.hasPermission(ADMIN_PERMISSION)) {
+            this.sender.sendMessage("§c你没有权限创建物品模板");
+            return true;
+        }
+        if (!hasArg(1)) {
+            this.sender.sendMessage("§c用法: /wrl create <物品ID>");
+            return true;
+        }
+        String id = arg(1).trim();
+        if (!TEMPLATE_ID.matcher(id).matches()) {
+            this.sender.sendMessage("§c物品ID只能包含字母、数字、下划线和短横线，长度 1-32");
+            return true;
+        }
+        if (this.items != null && this.items.containsKey(id)) {
+            this.sender.sendMessage("§c物品模板已存在: §f" + id);
+            return true;
+        }
+        if (!this.plugin.createItemTemplate(id)) {
+            this.sender.sendMessage("§c创建失败，请查看控制台");
+            return true;
+        }
+        this.sender.sendMessage("§a已创建物品模板 §f" + id + " §7(所有属性为 0)");
+        this.sender.sendMessage("§7使用 §f/wrl edit " + id + " addAttribute <属性> <数值> §7配置属性");
+        return true;
+    }
+
+    private boolean delete() {
+        if (!this.sender.hasPermission(ADMIN_PERMISSION)) {
+            this.sender.sendMessage("§c你没有权限删除物品模板");
+            return true;
+        }
+        if (!hasArg(1)) {
+            this.sender.sendMessage("§c用法: /wrl delete <物品ID>");
+            return true;
+        }
+        String id = arg(1).trim();
+        if (this.items == null || !this.items.containsKey(id)) {
+            this.sender.sendMessage("§c没有此物品模板: §f" + id);
+            return true;
+        }
+        if (!this.plugin.deleteItemTemplate(id)) {
+            this.sender.sendMessage("§c删除失败，请查看控制台");
+            return true;
+        }
+        this.sender.sendMessage("§a已删除物品模板 §f" + id);
+        this.sender.sendMessage("§7注意：已经带有该模板标签的物品会失去属性效果");
+        return true;
+    }
+
+    private boolean edit() {
+        if (!this.sender.hasPermission(ADMIN_PERMISSION)) {
+            this.sender.sendMessage("§c你没有权限修改物品模板");
+            return true;
+        }
+        if (!hasArg(3)) {
+            this.sender.sendMessage("§c用法: /wrl edit <物品ID> <addAttribute|removeAttribute> <属性> [数值]");
+            return true;
+        }
+        String id = arg(1).trim();
+        if (this.items == null || !this.items.containsKey(id)) {
+            this.sender.sendMessage("§c没有此物品模板: §f" + id);
+            return true;
+        }
+        String operation = arg(2).toLowerCase(Locale.ROOT);
+        String attribute = WeberItemConfig.canonicalAttribute(arg(3));
+        if (attribute == null) {
+            this.sender.sendMessage("§c未知属性: §f" + arg(3));
+            this.sender.sendMessage("§7可用属性: §f" + String.join("§7, §f", WeberItemConfig.ATTRIBUTE_KEYS));
+            return true;
+        }
+        if (operation.equals("addattribute")) {
+            if (!hasArg(4)) {
+                this.sender.sendMessage("§c用法: /wrl edit <物品ID> addAttribute <属性> <数值>");
+                return true;
+            }
+            double value;
+            try {
+                value = Double.parseDouble(arg(4));
+            } catch (NumberFormatException e) {
+                this.sender.sendMessage("§c数值无效: §f" + arg(4));
+                return true;
+            }
+            if (!Double.isFinite(value)) {
+                this.sender.sendMessage("§c数值无效: §f" + arg(4));
+                return true;
+            }
+            if (!this.plugin.setItemAttribute(id, attribute, value)) {
+                this.sender.sendMessage("§c修改失败，请查看控制台");
+                return true;
+            }
+            this.sender.sendMessage("§a已设置 §f" + id + " §7的 §f" + attribute + " §7= §f"
+                    + WeberLoreConfig.formatNumber(value, -1));
+            return true;
+        }
+        if (operation.equals("removeattribute")) {
+            if (!this.plugin.removeItemAttribute(id, attribute)) {
+                this.sender.sendMessage("§c修改失败，请查看控制台");
+                return true;
+            }
+            this.sender.sendMessage("§a已移除 §f" + id + " §7的 §f" + attribute + " §7(数值归零)");
+            return true;
+        }
+        this.sender.sendMessage("§c未知操作: §f" + arg(2));
+        this.sender.sendMessage("§7可用操作: §faddAttribute§7, §fremoveAttribute");
+        return true;
     }
 
     // ------------------------------------------------------------------ convert
@@ -466,15 +580,30 @@ public class CommandController {
         switch (name) {
             case "wrl": {
                 if (args.length == 1) {
-                    return filter(List.of("list", "convert", "reload", "help"), args[0]);
+                    return filter(List.of("list", "info", "create", "delete", "edit",
+                            "convert", "reload", "help"), args[0]);
                 }
+                String sub = args[0].toLowerCase(Locale.ROOT);
                 if (args.length == 2) {
-                    if (args[0].equalsIgnoreCase("list")) {
-                        return filter(itemIds(), args[1]);
+                    switch (sub) {
+                        case "info":
+                        case "delete":
+                        case "edit":
+                            return filter(itemIds(), args[1]);
+                        case "convert":
+                            return filter(List.of("all"), args[1]);
+                        default:
+                            return Collections.emptyList();
                     }
-                    if (args[0].equalsIgnoreCase("convert")) {
-                        return filter(List.of("all"), args[1]);
-                    }
+                }
+                if (args.length == 3 && sub.equals("edit")) {
+                    return filter(List.of("addAttribute", "removeAttribute"), args[2]);
+                }
+                if (args.length == 4 && sub.equals("edit")) {
+                    return filter(attributeKeys(), args[3]);
+                }
+                if (args.length == 5 && sub.equals("edit") && args[2].equalsIgnoreCase("addAttribute")) {
+                    return filter(List.of("0", "1", "5", "10", "100"), args[4]);
                 }
                 return Collections.emptyList();
             }
@@ -501,6 +630,10 @@ public class CommandController {
 
     private Set<String> infoIds() {
         return this.itemInfo == null ? Collections.emptySet() : new TreeSet<>(this.itemInfo.keySet());
+    }
+
+    private List<String> attributeKeys() {
+        return List.of(WeberItemConfig.ATTRIBUTE_KEYS);
     }
 
     static List<String> filter(Collection<String> options, String prefix) {

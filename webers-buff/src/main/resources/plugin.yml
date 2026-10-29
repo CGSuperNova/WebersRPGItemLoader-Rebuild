@@ -1,6 +1,6 @@
 name: WebersBuff
 main: com.weberpyth.weberBuff.WeberBuff
-version: '1.8.0'
+version: '1.9.0'
 api-version: '1.21'
 author: weber
 description: Weber's Buff - timed attribute buffs on top of the Weber RPG item system.

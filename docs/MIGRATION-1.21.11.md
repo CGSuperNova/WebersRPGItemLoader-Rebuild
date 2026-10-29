@@ -2,7 +2,7 @@
 
 > 基线：`bukkit/spigot-api 1.12.2-R0.1-SNAPSHOT` + NBT-API 2.7.1（pom 遗留）
 > 目标：Paper `1.21.11-R0.1-SNAPSHOT`，Java 21
-> 结果：两个插件在真实 Paper 1.21.11 服务端成功启用，47 项运行时冒烟测试全部通过。
+> 结果：两个插件在真实 Paper 1.21.11 服务端成功启用，58 项运行时冒烟测试全部通过。
 
 ---
 
@@ -116,7 +116,7 @@
 
 ---
 
-## 6. 1.8.0 功能扩展
+## 6. 1.9.0 功能扩展
 
 在完成 1.21.11 适配后，按需求补充了四项功能。
 
@@ -147,6 +147,14 @@
 - `/wrl convert` 转换主手，`/wrl convert all` 转换整个背包；转换只写入新的 PDC 标签，**不修改名称与 Lore**（旧物品通常已有手写 Lore）。
 - 转换幂等；模板不存在时拒绝并提示；旧 `custom_data` 键保留但不影响新逻辑。
 
+### 6.5 模板管理命令（1.9.0）
+
+- `/wrl list` 改为只输出模板 ID；详细属性移到 `/wrl info <ID>`。
+- 新增 `/wrl create <ID>` / `/wrl delete <ID>`：直接修改 `items.yml` 并保存，同时更新内存模板表（与战斗管线共享同一 Map，立即生效）。
+- 新增 `/wrl edit <ID> addAttribute <属性> <数值>` 与 `/wrl edit <ID> removeAttribute <属性>`：属性名大小写不敏感，`removeAttribute` 数值归零并从 YAML 删除该键。
+- 模板 ID 限制为 `[A-Za-z0-9_-]{1,32}`；`create` 写入 `innerName: <ID>` 作为节点占位，避免空节点被 YAML 丢弃。
+- Tab 补全同步支持新子命令、操作名、属性键与常用数值。
+
 ## 7. 构建体系
 
 原项目只有反编译源码和一个 1.12.2 的 `pom.xml` 片段，无法复现构建。现提供：
@@ -171,18 +179,18 @@
 测试服：`test-server/`（Paper 1.21.11-132，Java 21.0.3），安装两个插件 + 一个一次性冒烟测试插件。
 
 ```
-[WeberRpgitemLoader] Enabling WeberRpgitemLoader v1.8.0
+[WeberRpgitemLoader] Enabling WeberRpgitemLoader v1.9.0
 [Weber's RPG Item Loader] WRL物品模板载入完成，共 7 项
 [Weber's RPG Item Loader] WRL显示模板载入完成，共 7 项
 [Weber's RPG Item Loader] WRL插件加载完成!
-[WebersBuff] Enabling WebersBuff v1.8.0
+[WebersBuff] Enabling WebersBuff v1.9.0
 [Weber's Buff] Buff模板载入完成，共 1 项
 [Weber's Buff:DEBUG] 已注册 Buff 战斗判定钩子
 [WebersBuff] WebersBuff 已启用
 Done (17.892s)!
 ```
 
-冒烟测试结果（`test-server/smoke/`，最终 47 项全部通过）：
+冒烟测试结果（`test-server/smoke/`，最终 58 项全部通过）：
 
 ```
 SMOKE PASS tag-string / tag-isolated / tag-double / tag-air-safe / tag-null-safe / tag-meta-persisted
@@ -194,14 +202,19 @@ SMOKE PASS lore-damage-line / lore-crit-percent / lore-idempotent (after=6)
 SMOKE PASS legacy-item-created / legacy-detected (LegacyTags[id=test1, infoId=test1])
 SMOKE PASS legacy-converted / legacy-new-tag / legacy-detection-stops
 SMOKE PASS legacy-lore-untouched / legacy-name-untouched (转换不改动手写名称与 Lore)
-SMOKE PASS tab-wrl-subcommands / tab-item-ids / tab-item-filter / tab-buff-ids
-SMOKE PASS wrl-list / wrl-list-detail / wrl-list-unknown / wrl-help / wrl-convert-console-guard
+SMOKE PASS tab-wrl-subcommands / tab-wrl-template-subcommands / tab-edit-operations / tab-edit-attributes
+SMOKE PASS tab-item-ids / tab-item-filter / tab-buff-ids
+SMOKE PASS wrl-list / wrl-list-ignores-extra-arg / wrl-info-missing / wrl-help / wrl-convert-console-guard
+SMOKE PASS wrl-create / wrl-create-saved-to-disk
+SMOKE PASS wrl-edit-add (damage=7.0) / wrl-edit-remove (damage=0.0)
+SMOKE PASS wrl-info / wrl-list-names-only
+SMOKE PASS wrl-delete / wrl-delete-saved-to-disk
 SMOKE PASS combat-damage-applied (damage=25.0) / combat-plain-item-unchanged (damage=10.0)
 SMOKE PASS command-lookup-wrl / command-permission-wrl / command-execute-wrlReloadConf
 SMOKE PASS command-lookup-wrb / command-execute-wrbReload
 SMOKE PASS reload-keeps-items / reload-keeps-buff-models / reload-keeps-buff-hook / reload-keeps-lore
 SMOKE PASS combat-damage-applied (damage=25.0) / combat-plain-item-unchanged (damage=10.0)   ← 重载后复测
-SMOKE RESULT PASS passed=47 failed=0
+SMOKE RESULT PASS passed=58 failed=0
 ```
 
 > 测试说明：命令断言使用 `PluginCommand#execute(...)`（等价于命令映射器对真实玩家/控制台的调用）。未使用

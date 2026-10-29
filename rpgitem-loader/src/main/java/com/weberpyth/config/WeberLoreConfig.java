@@ -156,7 +156,7 @@ public class WeberLoreConfig extends SimpleYamlConfig {
         return text == null ? "" : SECTION_CODES.matcher(text).replaceAll("");
     }
 
-    static String formatNumber(double value, int decimals) {        if (decimals >= 0) {
+    public static String formatNumber(double value, int decimals) {        if (decimals >= 0) {
             return BigDecimal.valueOf(value).setScale(decimals, RoundingMode.HALF_UP).stripTrailingZeros().toPlainString();
         }
         if (Math.abs(value - Math.rint(value)) < 1.0E-9D) {

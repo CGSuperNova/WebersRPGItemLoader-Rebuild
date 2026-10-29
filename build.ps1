@@ -22,7 +22,7 @@ $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $MyInvocation.MyCommand.Definition
 Set-Location $root
 
-$version = '1.8.0'
+$version = '1.9.0'
 $modules = @(
     @{ Name = 'rpgitem-loader'; Jar = "WeberRpgitemLoader-$version.jar"; DependsOnLoader = $false },
     @{ Name = 'webers-buff';    Jar = "WebersBuff-$version.jar";         DependsOnLoader = $true  }

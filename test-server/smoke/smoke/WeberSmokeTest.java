@@ -65,6 +65,7 @@ public class WeberSmokeTest extends JavaPlugin {
             testLegacyConversion();
             testTabCompletion();
             testListCommand();
+            testTemplateCommands();
             testCombatPipeline();
             testReloadCommands();
             testCombatPipeline();
@@ -169,6 +170,16 @@ public class WeberSmokeTest extends JavaPlugin {
         List<String> subcommands = rpgitemloader.plugin.onTabComplete(Bukkit.getConsoleSender(), wrl, "wrl", new String[]{""});
         check("tab-wrl-subcommands", subcommands.contains("list") && subcommands.contains("convert"),
                 "subs=" + subcommands);
+        check("tab-wrl-template-subcommands", subcommands.contains("create") && subcommands.contains("delete")
+                && subcommands.contains("edit") && subcommands.contains("info"), "subs=" + subcommands);
+        List<String> editOps = rpgitemloader.plugin.onTabComplete(Bukkit.getConsoleSender(), wrl, "wrl",
+                new String[]{"edit", "test1", ""});
+        check("tab-edit-operations", editOps.contains("addAttribute") && editOps.contains("removeAttribute"),
+                "ops=" + editOps);
+        List<String> editAttributes = rpgitemloader.plugin.onTabComplete(Bukkit.getConsoleSender(), wrl, "wrl",
+                new String[]{"edit", "test1", "addAttribute", ""});
+        check("tab-edit-attributes", editAttributes.contains("damage") && editAttributes.contains("crit"),
+                "attrs=" + editAttributes);
         Command lbi = rpgitemloader.plugin.getCommand("wrlLBI");
         List<String> itemIds = rpgitemloader.plugin.onTabComplete(Bukkit.getConsoleSender(), lbi, "wrlLBI", new String[]{""});
         check("tab-item-ids", itemIds.contains("test1"), "ids=" + itemIds);
@@ -182,8 +193,10 @@ public class WeberSmokeTest extends JavaPlugin {
     private void testListCommand() {
         Command wrl = rpgitemloader.plugin.getCommand("WRL");
         check("wrl-list", wrl.execute(Bukkit.getConsoleSender(), "WRL", new String[]{"list"}), "");
-        check("wrl-list-detail", wrl.execute(Bukkit.getConsoleSender(), "WRL", new String[]{"list", "test1"}), "");
-        check("wrl-list-unknown", wrl.execute(Bukkit.getConsoleSender(), "WRL", new String[]{"list", "does-not-exist"}), "");
+        // /wrl list only prints template ids; extra args are ignored rather than showing details.
+        check("wrl-list-ignores-extra-arg",
+                wrl.execute(Bukkit.getConsoleSender(), "WRL", new String[]{"list", "test1"}), "");
+        check("wrl-info-missing", wrl.execute(Bukkit.getConsoleSender(), "WRL", new String[]{"info", "does-not-exist"}), "");
         check("wrl-help", wrl.execute(Bukkit.getConsoleSender(), "WRL", new String[]{"help"}), "");
         check("wrl-convert-console-guard", wrl.execute(Bukkit.getConsoleSender(), "WRL", new String[]{"convert"}), "");
     }
@@ -227,6 +240,37 @@ public class WeberSmokeTest extends JavaPlugin {
         return lines;
     }
 
+    private void testTemplateCommands() {
+        Command wrl = rpgitemloader.plugin.getCommand("WRL");
+        rpgitemloader loader = rpgitemloader.plugin;
+        java.io.File itemsFile = new java.io.File(loader.getDataFolder(), "items.yml");
+
+        boolean created = wrl.execute(Bukkit.getConsoleSender(), "WRL", new String[]{"create", "smoke_tmp"});
+        check("wrl-create", created && loader.getItems().containsKey("smoke_tmp"),
+                "ids=" + loader.getItems().keySet());
+        check("wrl-create-saved-to-disk",
+                org.bukkit.configuration.file.YamlConfiguration.loadConfiguration(itemsFile).contains("smoke_tmp"), "");
+
+        boolean added = wrl.execute(Bukkit.getConsoleSender(), "WRL",
+                new String[]{"edit", "smoke_tmp", "addAttribute", "damage", "7"});
+        Double damage = loader.getItems().get("smoke_tmp").attributes.get("damage");
+        check("wrl-edit-add", added && damage != null && damage == 7.0D, "damage=" + damage);
+
+        boolean removed = wrl.execute(Bukkit.getConsoleSender(), "WRL",
+                new String[]{"edit", "smoke_tmp", "removeAttribute", "damage"});
+        Double afterRemove = loader.getItems().get("smoke_tmp").attributes.get("damage");
+        check("wrl-edit-remove", removed && afterRemove != null && afterRemove == 0.0D,
+                "damage=" + afterRemove);
+
+        check("wrl-info", wrl.execute(Bukkit.getConsoleSender(), "WRL", new String[]{"info", "smoke_tmp"}), "");
+        check("wrl-list-names-only", wrl.execute(Bukkit.getConsoleSender(), "WRL", new String[]{"list"}), "");
+
+        boolean deleted = wrl.execute(Bukkit.getConsoleSender(), "WRL", new String[]{"delete", "smoke_tmp"});
+        check("wrl-delete", deleted && !loader.getItems().containsKey("smoke_tmp"), "");
+        check("wrl-delete-saved-to-disk",
+                !org.bukkit.configuration.file.YamlConfiguration.loadConfiguration(itemsFile).contains("smoke_tmp"), "");
+    }
+
     private void testCombatPipeline() {
         World world = Bukkit.getWorlds().get(0);
         Location spawn = world.getSpawnLocation();
@@ -247,8 +291,9 @@ public class WeberSmokeTest extends JavaPlugin {
         Bukkit.getPluginManager().callEvent(event);
 
         // items.yml test1: damage 15, crit 0.05, critMul 1, attackHeal 2.
+        // Without a crit the damage is 10 + 15 = 25; a crit doubles the (10 + 15) bonus -> 50.
         double damage = event.getDamage();
-        check("combat-damage-applied", damage > 10.0D && damage <= 25.5D, "damage=" + damage);
+        check("combat-damage-applied", damage == 25.0D || damage == 50.0D, "damage=" + damage);
 
         ItemStack plain = new ItemStack(Material.DIAMOND_SWORD);
         attacker.getEquipment().setItemInMainHand(plain);

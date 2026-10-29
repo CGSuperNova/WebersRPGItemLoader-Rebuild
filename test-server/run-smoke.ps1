@@ -64,8 +64,8 @@ Copy-Item (Join-Path $serverDir 'smoke\plugin.yml') $smokeClasses -Force
 
 $pluginsDir = Join-Path $serverDir 'plugins'
 New-Item -ItemType Directory -Force $pluginsDir | Out-Null
-Copy-Item (Join-Path $root 'dist\WeberRpgitemLoader-1.8.0.jar') $pluginsDir -Force
-Copy-Item (Join-Path $root 'dist\WebersBuff-1.8.0.jar') $pluginsDir -Force
+Copy-Item (Join-Path $root 'dist\WeberRpgitemLoader-1.9.0.jar') $pluginsDir -Force
+Copy-Item (Join-Path $root 'dist\WebersBuff-1.9.0.jar') $pluginsDir -Force
 & (Join-Path (Split-Path $java) 'jar.exe') --create --file (Join-Path $pluginsDir 'WeberSmokeTest.jar') -C $smokeClasses .
 if ($LASTEXITCODE -ne 0) { throw 'smoke test jar failed to package' }
 

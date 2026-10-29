@@ -1,6 +1,6 @@
 # 架构说明
 
-本文描述两个插件在 1.8.0（Paper 1.21.11）下的代码结构与运行机制，供后续维护参考。
+本文描述两个插件在 1.9.0（Paper 1.21.11）下的代码结构与运行机制，供后续维护参考。
 
 ## 1. 模块与职责
 
@@ -168,15 +168,28 @@ String setNoNumInfo(String msg);
 
 ## 7. 命令与 Tab 补全
 
-`/wrl` 是子命令根：`list` / `convert` / `reload` / `help`；旧的顶层命令（`/wrlLBI` 等）保留。
-权限在代码中按子命令检查：`WeberRpgitemLoader.admin`（管理/列表/重载）、
-`WeberRpgitemLoader.convert`（默认所有玩家）。
+`/wrl` 是子命令根：`list` / `info` / `create` / `delete` / `edit` / `convert` / `reload` / `help`；
+旧的顶层命令（`/wrlLBI` 等）保留。权限在代码中按子命令检查：`WeberRpgitemLoader.admin`
+（管理/列表/重载/模板编辑）、`WeberRpgitemLoader.convert`（默认所有玩家）。
+
+模板管理命令（1.9.0）：
+
+- `/wrl list`：只输出模板 ID，不展开详情；
+- `/wrl info <ID>`：内部名称、显示模板、非零属性（按 `lore.yml` 的中文格式）；
+- `/wrl create <ID>`：在 `items.yml` 写入 `<ID>: { innerName: <ID> }`，并在内存中加入全零模板；
+- `/wrl delete <ID>`：从 `items.yml` 与内存中移除；
+- `/wrl edit <ID> addAttribute <属性> <数值>` / `removeAttribute <属性>`：修改内存属性并立即 `saveCustomConfig()`；
+  属性名大小写不敏感，通过 `WeberItemConfig.canonicalAttribute` 归一化；`removeAttribute` 将数值归零并从
+  YAML 删除该键（若删空则保留 `键: 0`，防止节点消失）。
+
+`rpgitemloader` 持有 `WeberItemConfig` 实例（`getItemConfig()`），内存中的 `items` 与
+`CombatController` 共享同一个 Map，因此命令修改立即影响战斗结算，无需重载。
 
 Tab 补全由 `JavaPlugin#onTabComplete` 实现（`JavaPlugin` 本身是 `TabExecutor`，Bukkit 注册
 plugin.yml 命令时会自动把它设为 completer），并委托给各自的 `CommandController#tabComplete`：
 
-- Loader：`/wrl` 子命令、`list` 的模板 ID、`convert` 的 `all`、`/wrlLBI` 物品 ID、`/wrlLII` 显示 ID、
-  `/wrlJump` 高度；无权限时不返回管理类补全。
+- Loader：`/wrl` 子命令；`info`/`delete`/`edit` 的模板 ID；`edit` 的操作名、属性键、常用数值；
+  `convert` 的 `all`；`/wrlLBI` 物品 ID、`/wrlLII` 显示 ID、`/wrlJump` 高度；无权限时不返回管理类补全。
 - Buff：`wrbAdd` Buff ID、`wrbSet` 在线玩家 + Buff ID、`wrbGive` Buff ID + 材质名、`wrbFace` 力度。
 
 ## 8. 已知遗留

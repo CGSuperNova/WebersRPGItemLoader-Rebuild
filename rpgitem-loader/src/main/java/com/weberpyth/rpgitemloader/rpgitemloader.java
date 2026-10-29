@@ -58,6 +58,7 @@ public class rpgitemloader extends JavaPlugin implements Listener {
     private HashMap<String, WeberRPGItemInfo> itemInfo;
     private DotController dotController;
     private WeberLoreConfig loreConfig;
+    private WeberItemConfig itemConfig;
 
     private final Map<UUID, Long> legacyNotices = new HashMap<>();
 
@@ -110,18 +111,74 @@ public class rpgitemloader extends JavaPlugin implements Listener {
     }
 
     private void loadItemTemplates() {
-        WeberItemConfig itemConfig = new WeberItemConfig();
-        itemConfig.setPlugin(this);
-        itemConfig.setFileName();
-        itemConfig.getCustomConfig();
-        this.items = itemConfig.itemsParser();
-        itemConfig.saveDefaultConfig();
+        this.itemConfig = new WeberItemConfig();
+        this.itemConfig.setPlugin(this);
+        this.itemConfig.setFileName();
+        this.itemConfig.getCustomConfig();
+        this.items = this.itemConfig.itemsParser();
+        this.itemConfig.saveDefaultConfig();
         if (this.combatController != null) {
             this.combatController.setItems(this.items);
         }
         if (this.commandController != null) {
             this.commandController.setItems(this.items);
         }
+    }
+
+    // ------------------------------------------------------------------ runtime template editing
+
+    /** @return {@code false} when the id is invalid or already exists. */
+    public boolean createItemTemplate(String id) {
+        if (this.items == null || this.itemConfig == null || this.items.containsKey(id)) {
+            return false;
+        }
+        if (!this.itemConfig.createTemplate(id)) {
+            return false;
+        }
+        this.items.put(id, WeberItemConfig.blankTemplate(id));
+        return true;
+    }
+
+    /** @return {@code false} when the template does not exist. */
+    public boolean deleteItemTemplate(String id) {
+        if (this.items == null || this.itemConfig == null || !this.items.containsKey(id)) {
+            return false;
+        }
+        this.items.remove(id);
+        this.itemConfig.deleteTemplate(id);
+        return true;
+    }
+
+    /** @return {@code false} when the template does not exist. */
+    public boolean setItemAttribute(String id, String key, double value) {
+        if (this.items == null || this.itemConfig == null) {
+            return false;
+        }
+        WeberRPGItem item = this.items.get(id);
+        if (item == null) {
+            return false;
+        }
+        item.attributes.put(key, value);
+        this.itemConfig.setAttribute(id, key, value);
+        return true;
+    }
+
+    /** Sets the attribute to zero, which is equivalent to removing it from the combat pipeline. */
+    public boolean removeItemAttribute(String id, String key) {
+        if (this.items == null || this.itemConfig == null) {
+            return false;
+        }
+        WeberRPGItem item = this.items.get(id);
+        if (item == null) {
+            return false;
+        }
+        item.attributes.put(key, 0.0D);
+        this.itemConfig.removeAttribute(id, key);
+        return true;
+    }
+
+    public WeberItemConfig getItemConfig() {
+        return this.itemConfig;
     }
 
     private void loadInfoTemplates() {
@@ -174,6 +231,7 @@ public class rpgitemloader extends JavaPlugin implements Listener {
         this.items = null;
         this.dotController = null;
         this.loreConfig = null;
+        this.itemConfig = null;
         this.legacyNotices.clear();
         plugin = null;
     }

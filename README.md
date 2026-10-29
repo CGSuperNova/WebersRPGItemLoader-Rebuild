@@ -41,8 +41,8 @@
 产物在 `dist/`：
 
 ```
-dist/WeberRpgitemLoader-1.8.0.jar
-dist/WebersBuff-1.8.0.jar
+dist/WeberRpgitemLoader-1.9.0.jar
+dist/WebersBuff-1.9.0.jar
 ```
 
 脚本会自动：
@@ -59,7 +59,7 @@ dist/WebersBuff-1.8.0.jar
 mvn -q package
 ```
 
-两个模块分别产出可部署 jar（`rpgitem-loader/target/WeberRpgitemLoader-1.8.0.jar`、`webers-buff/target/WebersBuff-1.8.0.jar`）。`webers-buff` 对 `rpgitem-loader` 的依赖是 `provided`，不会被打进 jar。
+两个模块分别产出可部署 jar（`rpgitem-loader/target/WeberRpgitemLoader-1.9.0.jar`、`webers-buff/target/WebersBuff-1.9.0.jar`）。`webers-buff` 对 `rpgitem-loader` 的依赖是 `provided`，不会被打进 jar。
 
 ### 本地冒烟测试（可选）
 
@@ -84,7 +84,12 @@ mvn -q package
 | 命令 | 说明 | 权限 |
 | --- | --- | --- |
 | `/wrl` | 显示命令帮助 | 无 |
-| `/wrl list [物品ID]` | 列出所有已配置物品；带 ID 时显示该物品的完整属性与显示模板（列表中的 `[查看]` 可点击） | `WeberRpgitemLoader.admin` |
+| `/wrl list` | 只列出全部物品模板的名称（不展开详情） | `WeberRpgitemLoader.admin` |
+| `/wrl info <物品ID>` | 查看模板的内部名称、显示模板、全部属性 | `WeberRpgitemLoader.admin` |
+| `/wrl create <物品ID>` | 新建一个全属性为 0 的空模板（写入 `items.yml`） | `WeberRpgitemLoader.admin` |
+| `/wrl delete <物品ID>` | 删除模板（已打标签的物品会失去属性） | `WeberRpgitemLoader.admin` |
+| `/wrl edit <物品ID> addAttribute <属性> <数值>` | 设置模板属性 | `WeberRpgitemLoader.admin` |
+| `/wrl edit <物品ID> removeAttribute <属性>` | 移除模板属性（数值归零） | `WeberRpgitemLoader.admin` |
 | `/wrl convert [all]` | 把手中的旧版物品转换为新版；`all` 转换整个背包 | `WeberRpgitemLoader.convert`（默认所有玩家） |
 | `/wrl reload` | 重载全部配置（等同 `/wrlReloadConf`） | `WeberRpgitemLoader.admin` |
 | `/wrl help` | 显示命令帮助 | 无 |
@@ -228,7 +233,7 @@ entries:
 
 - 旧版物品请用 `/wrl convert` 转换；1.20.5 之前生成的旧物品无法通过 PDC 读取，必须走转换流程。
 - `combat.yml` 旧数据以玩家**显示名**为键。新版本改用 `Player#getName()`，若服务器使用昵称插件导致两者不同，旧键不会自动匹配，可手动改写该文件。
-- 升级到 1.8.0 后，已有物品的 Lore 不会自动补全，请重新执行一次 `/wrlLBI <ID>`（或转换旧物品）以生成属性块。
+- 升级到 1.9.0 后，已有物品的 Lore 不会自动补全，请重新执行一次 `/wrlLBI <ID>`（或转换旧物品）以生成属性块。
 
 ## 10. 目录结构
 
@@ -249,3 +254,93 @@ entries:
 ├─ *.jar.src/                  # 原始反编译产物（保留作对照）
 └─ dist/                       # 构建产物
 ```
+
+---
+
+# 附录 A：属性手册（整理自原作者 Wiki）
+
+> 以下内容整理自原作者发布的 Wiki 页面（工作区 `原作者wiki页面内容.md`），**版权归原作者所有**；本重制版只做排版、补全配置键名与少量勘误，不改变原意。原始页面在 `stealHealth` 条目处截断，缺失部分未收录。
+>
+> 单位说明：以下“1 点伤害”等于原版 Minecraft 中的半颗心。
+
+## A.1 装备栏机制
+
+插件只检测角色的 **主手、副手、头盔、胸甲、护腿、靴子** 六个装备栏。
+
+与部分 RPG 插件不同，本插件的战斗属性对**角色整体**生效：六个装备栏被视作类似 MOBA 的装备栏，任意一格提供的属性都会作用于角色的所有攻击，包括空手攻击和使用其他插件/模组武器时的攻击。
+
+例如：头盔提供 `+0.1 stealHealth`，即使主手是其他插件的武器，攻击也会享受 10% 生命偷取。
+
+## A.2 属性总表
+
+| 配置键 | 名称 | 类型 | 说明 |
+| --- | --- | --- | --- |
+| `damage` | 伤害修正 | 数值 | 每次攻击的固定伤害增减，正负皆可，可暴击 |
+| `appendDamage` | 附加伤害 | 数值 | 与 `damage` 独立叠加，不可暴击 |
+| `crit` | 暴击几率 | 比例 | `0.2` = 20% 概率暴击；只统计本插件属性 |
+| `critMul` | 暴击倍率 | 比例 | 触发暴击时的额外伤害，`0.25` = 额外 25% |
+| `attackHeal` | 攻击治疗 | 数值 | 每次攻击固定回复，与造成伤害无关，不可暴击 |
+| `currentEntityHealthDamage` | 目标当前生命百分比伤害 | 比例 | 附加“目标当前生命 × 比例”的伤害，不可暴击 |
+| `maxEntityHealthDamage` | 目标最大生命百分比伤害 | 比例 | 附加“目标最大生命 × 比例”的伤害，不可暴击 |
+| `stealHealth` | 生命偷取 | 比例 | 在所有伤害结算后按伤害吸血；吸血量不可暴击，但会计算暴击后的伤害 |
+| `outputDamage` | 最终输出百分比 | 比例 | 在暴击后结算，对最终伤害（含暴击）加成，正负皆可 |
+| `block` | 固定格挡 | 数值 | 在暴击后、生命偷取前结算，正负皆可，影响最终吸血量 |
+| `backstab` | 背刺伤害 | 比例 | 从目标背面 120° 内攻击时加成，正负皆可 |
+| `angerDamage` | 狂怒伤害 | 比例 | 攻击者每损失 1% 生命，伤害提升 `value×100%`（`0.1` → 每 1% 提升 10%，成长极高，慎用） |
+| `executeDamage` | 斩杀伤害 | 比例 | 目标每损失 1% 生命，本次伤害提升 `value×100%`（数值过高会秒杀低血量目标） |
+| `regurgitationCurrentHealthDamage` | 伤害反噬 | 比例 | 每次造成伤害时，自身受到“当前生命 × 比例”的反噬，正负皆可 |
+| `giantDamage` | 巨人之力 | 比例 | 攻击者生命越高伤害越高；`0.005` = 每 1% 生命提高 0.5% 伤害 |
+| `meleeDamage` | 近战输出 | 比例 | `0.1` = +10% 近战输出 |
+| `meleePower` | 近战伤害 | 数值 | `10` = +10 点近战伤害，可暴击 |
+| `meleeAppendDamage` | 近战附伤 | 数值 | `5` = +5 点近战伤害，不可暴击 |
+| `rangedDamage` | 远程输出 | 比例 | `0.1` = +10% 远程输出，可作用于模组枪械 |
+| `rangedPower` | 远程伤害 | 数值 | `10` = +10 点远程伤害，可暴击，可作用于模组枪械 |
+| `rangedAppendDamage` | 远程附伤 | 数值 | `5` = +5 点远程伤害，不可暴击，可作用于模组枪械 |
+| `repel` | 击退力度 | 数值 | `1` = 额外 1 倍击退距离 |
+| `annihilation` | 处决 | 比例 | 目标生命低于该比例时直接处决；建议不超过 `1` |
+| `playerKiller` | 玩家杀手 | 比例 | 对玩家造成 `value×100%` 额外伤害 |
+| `tenacity` | 坚忍不屈 | 比例 | 每损失 1% 生命，减少 `value×100%` 承受伤害（`0.005` → 每 1% 减伤 0.5%） |
+| `increasesDamageOnTheGround` | 地面攻击增益 | 比例 | 攻击者站在地面时额外造成 `value×100%` 伤害 |
+| `increaseDefenseOnTheGround` | 地面防守增益 | 比例 | 受害者站在地面时减少 `value×100%` 承受伤害 |
+| `armor` | 护甲 | 数值 | 正值为减伤、负值为增伤；100 护甲约 50% 减伤。负值减少的是**装备者**的护甲，不是穿透 |
+| `armorIncrease` | 护甲提升 | 比例 | 提升 `armor` 的百分比，可为负；同样不是护甲穿透 |
+| `armorSub` | 固定护甲穿透 | 数值 | 攻击时无视目标一定数值的护甲 |
+| `armorDecrease` | 百分比护甲穿透 | 比例 | 攻击时无视目标一定比例的护甲 |
+| `injuryReduction` | 伤害减免 | 比例 | `0.1` = 减少 10% 所受伤害，建议取正值 |
+| `blow` | 击飞高度 | 数值 | 命中时把目标向上击飞的高度，建议取正值 |
+| `innerName` | 内名 | 文本 | 仅在 `loreCheck: true` 时生效：物品 Lore 包含该文本时套用此模板属性；同一角色每个内名只生效一次 |
+
+## A.3 机制详解（整理自 Wiki）
+
+### damage / appendDamage
+
+- `damage` 是固定伤害修正，可正可负；六格装备的数值会累加后作用于角色整体。例如头盔 `+10 damage`、护腿 `-7 damage`，角色整体为 `+3`，空手攻击也 +3。
+- `appendDamage` 与 `damage` 互不冲突，同样六格累加。例如靴子 `+2`、副手盾牌 `+3`，则每次攻击额外 +5。
+- `damage` 可暴击，`appendDamage` 不可暴击。
+
+### crit / critMul
+
+- `crit` 决定暴击概率，`critMul` 决定暴击后的额外伤害。
+- 例：`+0.2 crit` 与 `+0.25 critMul` → 20% 概率暴击，暴击时额外造成 25% 伤害。
+- 本插件独立计算自己的暴击，不与其他插件暴击互相影响；但开启原版伤害时，本插件暴击的倍率会作用到其他插件/模组加成后的伤害上。
+
+### attackHeal
+
+- 固定治疗量，与造成的伤害无关；没有造成伤害的攻击也会触发。
+- 例：`+2 attackHeal` → 每次攻击回复 2 点生命；不可暴击。
+
+### currentEntityHealthDamage
+
+- 附加“目标当前生命 × 比例”的伤害，不可暴击。例：`+0.1` → 附加目标当前生命 10% 的伤害。
+
+### stealHealth（Wiki 原文在此处截断）
+
+- 在所有其他伤害属性结算完成后，最后结算生命偷取。
+- 吸血治疗量不可暴击，但计算时会包含暴击产生的额外伤害。
+- 例：`+0.1 stealHealth` → 任何攻击（包括空手）回复所造成伤害 10% 的生命。
+
+## A.4 与配置键的差异说明
+
+- Wiki 中的 `regurgitationOnCurrentHealthDamage` 在插件配置里写作 **`regurgitationCurrentHealthDamage`**（少了 `On`），以配置键为准。
+- `innerName` 不是数值属性，而是模板的文本字段，`/wrl edit` 的 `addAttribute` / `removeAttribute` 不接受它。
+- Wiki 原文在 `stealHealth` 条目中途结束；其余属性以 A.2 表格与代码中的 `WeberItemConfig.ATTRIBUTE_KEYS` 为准。
