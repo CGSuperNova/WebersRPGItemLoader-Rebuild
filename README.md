@@ -79,8 +79,6 @@ mvn -q package
 
 ## 4. 命令
 
-所有命令都支持 **Tab 补全**（子命令、物品 ID、显示模板 ID、Buff ID、在线玩家名、材质名）。
-
 | 命令 | 说明 | 权限 |
 | --- | --- | --- |
 | `/wrl` | 显示命令帮助 | 无 |
@@ -259,7 +257,7 @@ entries:
 
 # 附录 A：属性手册（整理自原作者 Wiki）
 
-> 以下内容整理自原作者发布的 Wiki 页面（工作区 `原作者wiki页面内容.md`），**版权归原作者所有**；本重制版只做排版、补全配置键名与少量勘误，不改变原意。原始页面在 `stealHealth` 条目处截断，缺失部分未收录。
+> 以下内容整理自原作者发布的 Wiki 页面，**版权归原作者所有**；本重制版只做排版、补全配置键名与少量勘误，不改变原意。
 >
 > 单位说明：以下“1 点伤害”等于原版 Minecraft 中的半颗心。
 
@@ -333,14 +331,8 @@ entries:
 
 - 附加“目标当前生命 × 比例”的伤害，不可暴击。例：`+0.1` → 附加目标当前生命 10% 的伤害。
 
-### stealHealth（Wiki 原文在此处截断）
+### stealHealth
 
 - 在所有其他伤害属性结算完成后，最后结算生命偷取。
 - 吸血治疗量不可暴击，但计算时会包含暴击产生的额外伤害。
 - 例：`+0.1 stealHealth` → 任何攻击（包括空手）回复所造成伤害 10% 的生命。
-
-## A.4 与配置键的差异说明
-
-- Wiki 中的 `regurgitationOnCurrentHealthDamage` 在插件配置里写作 **`regurgitationCurrentHealthDamage`**（少了 `On`），以配置键为准。
-- `innerName` 不是数值属性，而是模板的文本字段，`/wrl edit` 的 `addAttribute` / `removeAttribute` 不接受它。
-- Wiki 原文在 `stealHealth` 条目中途结束；其余属性以 A.2 表格与代码中的 `WeberItemConfig.ATTRIBUTE_KEYS` 为准。
